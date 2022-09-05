@@ -13,6 +13,7 @@ class ItemDetails extends StatefulWidget {
 }
 
 class _ItemDetailsState extends State<ItemDetails> {
+  bool _isEditMode = true;
   String _headerText = 'Edit Item';
 
   final _name = TextEditingController();
@@ -25,6 +26,7 @@ class _ItemDetailsState extends State<ItemDetails> {
     var arguments = ModalRoute.of(context)?.settings.arguments;
     if (arguments == null) {
       setState(() {
+        _isEditMode = false;
         _headerText = 'Create Item';
       });
     }
@@ -76,16 +78,24 @@ class _ItemDetailsState extends State<ItemDetails> {
               children: [
                 PrimaryActionButton(
                   icon: Icons.check,
-                  action: () {},
+                  action: () {
+                    Navigator.pop(context);
+                  },
                 ),
                 PrimaryActionButton(
                   icon: Icons.close,
-                  action: () {},
+                  action: () {
+                    Navigator.pop(context);
+                  },
                 ),
-                PrimaryActionButton(
-                  icon: Icons.delete_forever,
-                  action: () {},
-                ),
+                if (_isEditMode) ...[
+                  PrimaryActionButton(
+                    icon: Icons.delete_forever,
+                    action: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                ],
               ],
             ),
             const SizedBox(height: 10),

@@ -3,6 +3,7 @@ import 'package:expiration_date/pages/item_details.dart';
 import 'package:expiration_date/shared/header.dart';
 import 'package:expiration_date/widgets/action_button.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class StoreItems extends StatefulWidget {
   static const String routeName = '/items';
@@ -148,14 +149,15 @@ class _StoreItemsState extends State<StoreItems> {
               child: ListView.builder(
                 itemCount: _filteredList.length,
                 shrinkWrap: true,
-                itemBuilder: (context, index) => ListTile(
-                  title: GestureDetector(
-                    onTap: () => Navigator.pushNamed(
-                      context,
-                      ItemDetails.routeName,
-                      arguments: _filteredList[index].id,
-                    ),
-                    child: Text(_filteredList[index].name),
+                itemBuilder: (context, index) => GestureDetector(
+                  onTap: () => Navigator.pushNamed(
+                    context,
+                    ItemDetails.routeName,
+                    arguments: _filteredList[index].id,
+                  ),
+                  child: ListTile(
+                    title: Text(_filteredList[index].name),
+                    subtitle: Text(DateFormat('dd.MM.yyyy').format(_filteredList[index].expirationDate)),
                   ),
                 ),
               ),

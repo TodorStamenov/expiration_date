@@ -1,6 +1,7 @@
 import 'package:expiration_date/data/objectbox.g.dart';
 import 'package:expiration_date/enum/sort_order.dart';
 import 'package:expiration_date/models/item_model.dart';
+import 'package:expiration_date/pages/import_items.dart';
 import 'package:expiration_date/pages/item_details.dart';
 import 'package:expiration_date/shared/header.dart';
 import 'package:expiration_date/widgets/action_button.dart';
@@ -127,14 +128,21 @@ class _StoreItemsState extends State<StoreItems> {
               children: [
                 PrimaryActionButton(
                   icon: Icons.add,
-                  action: () => Navigator.pushNamed(
-                    context,
-                    ItemDetails.routeName,
-                  ),
+                  action: () {
+                    Navigator.pushNamed(
+                      context,
+                      ItemDetails.routeName,
+                    );
+                  },
                 ),
                 PrimaryActionButton(
                   icon: Icons.keyboard_double_arrow_down,
-                  action: () {},
+                  action: () {
+                    Navigator.pushNamed(
+                      context,
+                      ImportItems.routeName,
+                    );
+                  },
                 ),
                 PrimaryActionButton(
                   icon: Icons.abc,
@@ -201,11 +209,13 @@ class _StoreItemsState extends State<StoreItems> {
                       itemCount: itemsList.length,
                       shrinkWrap: true,
                       itemBuilder: (context, index) => GestureDetector(
-                        onTap: () => Navigator.pushNamed(
-                          context,
-                          ItemDetails.routeName,
-                          arguments: itemsList[index].id,
-                        ),
+                        onTap: () {
+                          Navigator.pushNamed(
+                            context,
+                            ItemDetails.routeName,
+                            arguments: itemsList[index].id,
+                          );
+                        },
                         child: ListTile(
                           title: Text(itemsList[index].name),
                           subtitle: Text(DateFormat('dd.MM.yyyy').format(itemsList[index].expirationDate)),

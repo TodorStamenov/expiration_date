@@ -1,4 +1,5 @@
 import 'package:expiration_date/data/objectbox.g.dart';
+import 'package:expiration_date/pages/import_items.dart';
 import 'package:expiration_date/pages/item_details.dart';
 import 'package:expiration_date/pages/store_items.dart';
 import 'package:flutter/material.dart';
@@ -30,6 +31,7 @@ void main() async {
         routes: {
           StoreItems.routeName: (context) => StoreItems(store: store),
           ItemDetails.routeName: (context) => ItemDetails(store: store),
+          ImportItems.routeName: (context) => const ImportItems(),
         },
       ),
     ),

@@ -1,4 +1,5 @@
 import 'package:expiration_date/data/objectbox.g.dart';
+import 'package:expiration_date/enum/sort_order.dart';
 import 'package:expiration_date/models/item_model.dart';
 import 'package:expiration_date/pages/item_details.dart';
 import 'package:expiration_date/shared/header.dart';
@@ -24,6 +25,7 @@ class _StoreItemsState extends State<StoreItems> {
   bool _showSearch = false;
   bool _hasBeenInitialized = false;
   String _searchText = '';
+  SortOrder _order = SortOrder.id;
 
   late Stream<List<ItemModel>> _stream;
 
@@ -46,50 +48,65 @@ class _StoreItemsState extends State<StoreItems> {
 
   void toggleSearch() {
     setState(() {
+      _searchText = '';
       _searchTerm.clear();
       _showSearch = !_showSearch;
       _stream = getStream();
+      _order = SortOrder.id;
     });
   }
 
   void clearSearch() {
-    _searchTerm.clear();
     FocusManager.instance.primaryFocus?.unfocus();
     setState(() {
+      _searchText = '';
+      _searchTerm.clear();
       _stream = getStream();
+      _order = SortOrder.id;
     });
   }
 
   void sortByName() {
     setState(() {
-      final query = widget.store.box<ItemModel>().query();
+      final query = widget.store.box<ItemModel>().query(ItemModel_.name.contains(_searchText.toLowerCase()));
       query.order(ItemModel_.name, flags: 0);
 
       _stream = query.watch(triggerImmediately: true).map((query) => query.find());
+      _order = SortOrder.name;
     });
   }
 
   void sortByDate() {
     setState(() {
-      final query = widget.store.box<ItemModel>().query();
-      query.order(ItemModel_.expirationDate, flags: Order.descending);
+      final query = widget.store.box<ItemModel>().query(ItemModel_.name.contains(_searchText.toLowerCase()));
+      query.order(ItemModel_.expirationDate, flags: 0);
 
       _stream = query.watch(triggerImmediately: true).map((query) => query.find());
+      _order = SortOrder.date;
     });
   }
 
   void filterItems(String text) {
     setState(() {
       _searchText = text;
+      final query = widget.store.box<ItemModel>().query(ItemModel_.name.contains(text.toLowerCase()));
+      if (_order == SortOrder.id) {
+        query.order(ItemModel_.id, flags: 0);
+      } else if (_order == SortOrder.name) {
+        query.order(ItemModel_.name, flags: 0);
+      } else if (_order == SortOrder.date) {
+        query.order(ItemModel_.expirationDate, flags: 0);
+      }
+
+      _stream = query.watch(triggerImmediately: true).map((query) => query.find());
     });
   }
 
   Stream<List<ItemModel>> getStream() {
-    return widget.store
-        .box<ItemModel>()
-        .query(ItemModel_.name.contains(_searchText.toLowerCase()))
-        .watch(triggerImmediately: true)
-        .map((query) => query.find());
+    final query = widget.store.box<ItemModel>().query();
+    query.order(ItemModel_.id, flags: 0);
+
+    return query.watch(triggerImmediately: true).map((query) => query.find());
   }
 
   @override

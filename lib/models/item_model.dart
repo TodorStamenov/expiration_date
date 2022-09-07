@@ -1,15 +1,18 @@
-class ItemModel {
-  final int id;
-  final String name;
-  final int shelfLife;
-  final DateTime productionDate;
-  final DateTime expirationDate;
+import 'package:objectbox/objectbox.dart';
 
-  ItemModel(
-    this.id,
-    this.name,
-    this.shelfLife,
-    this.productionDate,
-    this.expirationDate,
-  );
+@Entity()
+class ItemModel {
+  int id;
+  String name;
+  int? shelfLife;
+  DateTime? productionDate;
+  DateTime expirationDate;
+
+  ItemModel({
+    this.id = 0,
+    required this.name,
+    required this.shelfLife,
+    required this.productionDate,
+    required this.expirationDate,
+  });
 }

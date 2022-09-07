@@ -1,3 +1,4 @@
+import 'package:expiration_date/data/objectbox.g.dart';
 import 'package:expiration_date/models/item_model.dart';
 import 'package:expiration_date/pages/item_details.dart';
 import 'package:expiration_date/shared/header.dart';
@@ -8,7 +9,12 @@ import 'package:intl/intl.dart';
 class StoreItems extends StatefulWidget {
   static const String routeName = '/items';
 
-  const StoreItems({Key? key}) : super(key: key);
+  final Store store;
+
+  const StoreItems({
+    Key? key,
+    required this.store,
+  }) : super(key: key);
 
   @override
   State<StoreItems> createState() => _StoreItemsState();
@@ -16,34 +22,33 @@ class StoreItems extends StatefulWidget {
 
 class _StoreItemsState extends State<StoreItems> {
   bool _showSearch = false;
-  List<ItemModel> _filteredList = [];
+  bool _hasBeenInitialized = false;
+  String _searchText = '';
 
-  final List<ItemModel> _items = [];
+  late Stream<List<ItemModel>> _stream;
+
   final _searchTerm = TextEditingController();
 
   @override
   void initState() {
-    for (var i = 0; i < 300; i++) {
-      _items.add(
-        ItemModel(
-          i,
-          'Name $i',
-          2,
-          DateTime.now().subtract(const Duration(days: 100)),
-          DateTime.now().add(Duration(days: i)),
-        ),
-      );
-    }
-
-    _filteredList = _items.toList();
     super.initState();
+    setState(() {
+      _stream = getStream();
+      _hasBeenInitialized = true;
+    });
+  }
+
+  @override
+  void dispose() {
+    widget.store.close();
+    super.dispose();
   }
 
   void toggleSearch() {
     setState(() {
       _searchTerm.clear();
       _showSearch = !_showSearch;
-      _filteredList = _items.toList();
+      _stream = getStream();
     });
   }
 
@@ -51,26 +56,40 @@ class _StoreItemsState extends State<StoreItems> {
     _searchTerm.clear();
     FocusManager.instance.primaryFocus?.unfocus();
     setState(() {
-      _filteredList = _items.toList();
+      _stream = getStream();
     });
   }
 
   void sortByName() {
     setState(() {
-      _filteredList.sort((a, b) => a.name.compareTo(b.name));
+      final query = widget.store.box<ItemModel>().query();
+      query.order(ItemModel_.name, flags: 0);
+
+      _stream = query.watch(triggerImmediately: true).map((query) => query.find());
     });
   }
 
   void sortByDate() {
     setState(() {
-      _filteredList.sort((a, b) => b.expirationDate.compareTo(a.expirationDate));
+      final query = widget.store.box<ItemModel>().query();
+      query.order(ItemModel_.expirationDate, flags: Order.descending);
+
+      _stream = query.watch(triggerImmediately: true).map((query) => query.find());
     });
   }
 
   void filterItems(String text) {
     setState(() {
-      _filteredList = _items.where((item) => item.name.toLowerCase().contains(text.toLowerCase())).toList();
+      _searchText = text;
     });
+  }
+
+  Stream<List<ItemModel>> getStream() {
+    return widget.store
+        .box<ItemModel>()
+        .query(ItemModel_.name.contains(_searchText.toLowerCase()))
+        .watch(triggerImmediately: true)
+        .map((query) => query.find());
   }
 
   @override
@@ -145,23 +164,41 @@ class _StoreItemsState extends State<StoreItems> {
               ),
               const SizedBox(height: 10),
             ],
-            Expanded(
-              child: ListView.builder(
-                itemCount: _filteredList.length,
-                shrinkWrap: true,
-                itemBuilder: (context, index) => GestureDetector(
-                  onTap: () => Navigator.pushNamed(
-                    context,
-                    ItemDetails.routeName,
-                    arguments: _filteredList[index].id,
-                  ),
-                  child: ListTile(
-                    title: Text(_filteredList[index].name),
-                    subtitle: Text(DateFormat('dd.MM.yyyy').format(_filteredList[index].expirationDate)),
-                  ),
-                ),
+            if (!_hasBeenInitialized) ...[
+              const Center(
+                child: CircularProgressIndicator(color: Colors.orange),
+              )
+            ] else ...[
+              StreamBuilder(
+                stream: _stream,
+                builder: ((context, snapshot) {
+                  if (!snapshot.hasData) {
+                    return const Center(
+                      child: CircularProgressIndicator(color: Colors.orange),
+                    );
+                  }
+
+                  final itemsList = snapshot.data! as List<ItemModel>;
+                  return Expanded(
+                    child: ListView.builder(
+                      itemCount: itemsList.length,
+                      shrinkWrap: true,
+                      itemBuilder: (context, index) => GestureDetector(
+                        onTap: () => Navigator.pushNamed(
+                          context,
+                          ItemDetails.routeName,
+                          arguments: itemsList[index].id,
+                        ),
+                        child: ListTile(
+                          title: Text(itemsList[index].name),
+                          subtitle: Text(DateFormat('dd.MM.yyyy').format(itemsList[index].expirationDate)),
+                        ),
+                      ),
+                    ),
+                  );
+                }),
               ),
-            )
+            ],
           ],
         ),
       ),

@@ -2,10 +2,13 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.expiration_date">
 
-   <application
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+
+    <application
         android:label="Expiration Date"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        android:requestLegacyExternalStorage="true">
 
         <activity
             android:name=".MainActivity"

@@ -69,7 +69,13 @@ class _StoreItemsState extends State<StoreItems> {
 
   void sortByName() {
     setState(() {
-      final query = widget.store.box<ItemModel>().query(ItemModel_.name.contains(_searchText.toLowerCase()));
+      final query = widget.store.box<ItemModel>().query(
+            ItemModel_.name.contains(
+              _searchText.toLowerCase(),
+              caseSensitive: false,
+            ),
+          );
+
       query.order(ItemModel_.name, flags: 0);
 
       _stream = query.watch(triggerImmediately: true).map((query) => query.find());
@@ -79,7 +85,13 @@ class _StoreItemsState extends State<StoreItems> {
 
   void sortByDate() {
     setState(() {
-      final query = widget.store.box<ItemModel>().query(ItemModel_.name.contains(_searchText.toLowerCase()));
+      final query = widget.store.box<ItemModel>().query(
+            ItemModel_.name.contains(
+              _searchText.toLowerCase(),
+              caseSensitive: false,
+            ),
+          );
+
       query.order(ItemModel_.expirationDate, flags: 0);
 
       _stream = query.watch(triggerImmediately: true).map((query) => query.find());
@@ -90,7 +102,13 @@ class _StoreItemsState extends State<StoreItems> {
   void filterItems(String text) {
     setState(() {
       _searchText = text;
-      final query = widget.store.box<ItemModel>().query(ItemModel_.name.contains(text.toLowerCase()));
+      final query = widget.store.box<ItemModel>().query(
+            ItemModel_.name.contains(
+              text.toLowerCase(),
+              caseSensitive: false,
+            ),
+          );
+
       if (_order == SortOrder.id) {
         query.order(ItemModel_.id, flags: 0);
       } else if (_order == SortOrder.name) {
@@ -108,6 +126,25 @@ class _StoreItemsState extends State<StoreItems> {
     query.order(ItemModel_.id, flags: 0);
 
     return query.watch(triggerImmediately: true).map((query) => query.find());
+  }
+
+  Widget? getTrailingIcon(DateTime expirationDate) {
+    final now = DateTime.now();
+    if (expirationDate.isBefore(now)) {
+      return const Icon(
+        Icons.warning,
+        color: Colors.red,
+      );
+    }
+
+    if (expirationDate.difference(now).inDays < 30) {
+      return const Icon(
+        Icons.warning,
+        color: Colors.yellow,
+      );
+    }
+
+    return null;
   }
 
   @override
@@ -219,6 +256,7 @@ class _StoreItemsState extends State<StoreItems> {
                         child: ListTile(
                           title: Text(itemsList[index].name),
                           subtitle: Text(DateFormat('dd.MM.yyyy').format(itemsList[index].expirationDate)),
+                          trailing: getTrailingIcon(itemsList[index].expirationDate),
                         ),
                       ),
                     ),

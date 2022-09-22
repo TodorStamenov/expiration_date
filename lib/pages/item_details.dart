@@ -44,7 +44,11 @@ class _ItemDetailsState extends State<ItemDetails> {
       });
     } else {
       final itemId = arguments as int;
-      final item = widget.store.box<ItemModel>().query(ItemModel_.id.equals(itemId)).build().find().first;
+      final item = widget.store.box<ItemModel>().query(ItemModel_.id.equals(itemId)).build().findFirst();
+
+      if (item == null) {
+        return;
+      }
 
       setState(() {
         _itemId = itemId;
@@ -58,7 +62,7 @@ class _ItemDetailsState extends State<ItemDetails> {
     super.didChangeDependencies();
   }
 
-  void saveItem() {
+  void saveItem() async {
     if (_name.text == '') {
       showToastMessage('Product Name is required!');
       return;
@@ -86,16 +90,20 @@ class _ItemDetailsState extends State<ItemDetails> {
 
     if (_itemId != null) {
       item.id = _itemId!;
-      widget.store.box<ItemModel>().put(item);
-    } else {
-      widget.store.box<ItemModel>().put(item);
     }
 
-    Navigator.pop(context);
+    await widget.store.box<ItemModel>().putAsync(item);
+
+    showToastMessage('Item saved successfully!');
+
+    if (mounted) {
+      Navigator.pop(context);
+    }
   }
 
   void removeItem() {
     widget.store.box<ItemModel>().remove(_itemId!);
+    showToastMessage('Item deleted successfully!');
     Navigator.pop(context);
   }
 

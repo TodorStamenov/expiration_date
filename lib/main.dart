@@ -31,7 +31,7 @@ void main() async {
         routes: {
           StoreItems.routeName: (context) => StoreItems(store: store),
           ItemDetails.routeName: (context) => ItemDetails(store: store),
-          ImportItems.routeName: (context) => const ImportItems(),
+          ImportItems.routeName: (context) => ImportItems(store: store),
         },
       ),
     ),

@@ -24,11 +24,10 @@ class StoreItems extends StatefulWidget {
 
 class _StoreItemsState extends State<StoreItems> {
   bool _showSearch = false;
-  bool _hasBeenInitialized = false;
   String _searchText = '';
   SortOrder _order = SortOrder.id;
 
-  late Stream<List<ItemModel>> _stream;
+  late Stream<List<ItemModel>> _itemsStream;
 
   final _searchTerm = TextEditingController();
 
@@ -36,8 +35,7 @@ class _StoreItemsState extends State<StoreItems> {
   void initState() {
     super.initState();
     setState(() {
-      _stream = getStream();
-      _hasBeenInitialized = true;
+      _itemsStream = getItemsStream();
     });
   }
 
@@ -52,7 +50,7 @@ class _StoreItemsState extends State<StoreItems> {
       _searchText = '';
       _searchTerm.clear();
       _showSearch = !_showSearch;
-      _stream = getStream();
+      _itemsStream = getItemsStream();
       _order = SortOrder.id;
     });
   }
@@ -62,7 +60,7 @@ class _StoreItemsState extends State<StoreItems> {
     setState(() {
       _searchText = '';
       _searchTerm.clear();
-      _stream = getStream();
+      _itemsStream = getItemsStream();
       _order = SortOrder.id;
     });
   }
@@ -78,7 +76,7 @@ class _StoreItemsState extends State<StoreItems> {
 
       query.order(ItemModel_.name, flags: 0);
 
-      _stream = query.watch(triggerImmediately: true).map((query) => query.find());
+      _itemsStream = query.watch(triggerImmediately: true).map((query) => query.find());
       _order = SortOrder.name;
     });
   }
@@ -94,7 +92,7 @@ class _StoreItemsState extends State<StoreItems> {
 
       query.order(ItemModel_.expirationDate, flags: 0);
 
-      _stream = query.watch(triggerImmediately: true).map((query) => query.find());
+      _itemsStream = query.watch(triggerImmediately: true).map((query) => query.find());
       _order = SortOrder.date;
     });
   }
@@ -117,11 +115,11 @@ class _StoreItemsState extends State<StoreItems> {
         query.order(ItemModel_.expirationDate, flags: 0);
       }
 
-      _stream = query.watch(triggerImmediately: true).map((query) => query.find());
+      _itemsStream = query.watch(triggerImmediately: true).map((query) => query.find());
     });
   }
 
-  Stream<List<ItemModel>> getStream() {
+  Stream<List<ItemModel>> getItemsStream() {
     final query = widget.store.box<ItemModel>().query();
     query.order(ItemModel_.id, flags: 0);
 
@@ -226,44 +224,43 @@ class _StoreItemsState extends State<StoreItems> {
               ),
               const SizedBox(height: 10),
             ],
-            if (!_hasBeenInitialized) ...[
-              const Center(
-                child: CircularProgressIndicator(color: Colors.orange),
-              )
-            ] else ...[
-              StreamBuilder(
-                stream: _stream,
-                builder: ((context, snapshot) {
-                  if (!snapshot.hasData) {
-                    return const Center(
-                      child: CircularProgressIndicator(color: Colors.orange),
-                    );
-                  }
-
-                  final itemsList = snapshot.data! as List<ItemModel>;
-                  return Expanded(
-                    child: ListView.builder(
-                      itemCount: itemsList.length,
-                      shrinkWrap: true,
-                      itemBuilder: (context, index) => GestureDetector(
-                        onTap: () {
-                          Navigator.pushNamed(
-                            context,
-                            ItemDetails.routeName,
-                            arguments: itemsList[index].id,
-                          );
-                        },
-                        child: ListTile(
-                          title: Text(itemsList[index].name),
-                          subtitle: Text(DateFormat('dd.MM.yyyy').format(itemsList[index].expirationDate)),
-                          trailing: getTrailingIcon(itemsList[index].expirationDate),
-                        ),
+            StreamBuilder<List<ItemModel>>(
+              stream: _itemsStream,
+              builder: ((context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.none ||
+                    snapshot.connectionState == ConnectionState.waiting) {
+                  return const Expanded(
+                    child: Center(
+                      child: CircularProgressIndicator(
+                        color: Colors.orange,
                       ),
                     ),
                   );
-                }),
-              ),
-            ],
+                }
+
+                final itemsList = snapshot.data!;
+                return Expanded(
+                  child: ListView.builder(
+                    itemCount: itemsList.length,
+                    shrinkWrap: true,
+                    itemBuilder: (context, index) => GestureDetector(
+                      onTap: () {
+                        Navigator.pushNamed(
+                          context,
+                          ItemDetails.routeName,
+                          arguments: itemsList[index].id,
+                        );
+                      },
+                      child: ListTile(
+                        title: Text(itemsList[index].name),
+                        subtitle: Text(DateFormat('dd.MM.yyyy').format(itemsList[index].expirationDate)),
+                        trailing: getTrailingIcon(itemsList[index].expirationDate),
+                      ),
+                    ),
+                  ),
+                );
+              }),
+            ),
           ],
         ),
       ),

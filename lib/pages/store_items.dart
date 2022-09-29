@@ -243,7 +243,10 @@ class _StoreItemsState extends State<StoreItems> {
                   child: ListView.builder(
                     itemCount: itemsList.length,
                     shrinkWrap: true,
-                    itemBuilder: (context, index) => GestureDetector(
+                    itemBuilder: (context, index) => ListTile(
+                      title: Text(itemsList[index].name),
+                      subtitle: Text(DateFormat('dd.MM.yyyy').format(itemsList[index].expirationDate)),
+                      trailing: getTrailingIcon(itemsList[index].expirationDate),
                       onTap: () {
                         Navigator.pushNamed(
                           context,
@@ -251,11 +254,6 @@ class _StoreItemsState extends State<StoreItems> {
                           arguments: itemsList[index].id,
                         );
                       },
-                      child: ListTile(
-                        title: Text(itemsList[index].name),
-                        subtitle: Text(DateFormat('dd.MM.yyyy').format(itemsList[index].expirationDate)),
-                        trailing: getTrailingIcon(itemsList[index].expirationDate),
-                      ),
                     ),
                   ),
                 );

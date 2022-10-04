@@ -2,8 +2,8 @@ import 'package:expiration_date/data/objectbox.g.dart';
 import 'package:expiration_date/models/item_model.dart';
 import 'package:expiration_date/shared/header.dart';
 import 'package:expiration_date/utils/toaster.dart';
-import 'package:expiration_date/widgets/action_button.dart';
 import 'package:expiration_date/widgets/input_field.dart';
+import 'package:expiration_date/widgets/primary_button.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -25,7 +25,6 @@ class _ItemDetailsState extends State<ItemDetails> {
   static const _dateFormat = 'dd.MM.yyyy';
 
   int? _itemId;
-  bool _isEditMode = true;
   String _headerText = 'Edit Item';
 
   final _name = TextEditingController();
@@ -39,7 +38,6 @@ class _ItemDetailsState extends State<ItemDetails> {
 
     if (arguments == null) {
       setState(() {
-        _isEditMode = false;
         _headerText = 'Create Item';
       });
     } else {
@@ -101,12 +99,6 @@ class _ItemDetailsState extends State<ItemDetails> {
     }
   }
 
-  void removeItem() {
-    widget.store.box<ItemModel>().remove(_itemId!);
-    showToastMessage('Item deleted successfully!');
-    Navigator.pop(context);
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -146,26 +138,11 @@ class _ItemDetailsState extends State<ItemDetails> {
               textInputAction: TextInputAction.done,
             ),
             const SizedBox(height: 40),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                PrimaryActionButton(
-                  icon: Icons.check,
-                  action: saveItem,
-                ),
-                PrimaryActionButton(
-                  icon: Icons.close,
-                  action: () {
-                    Navigator.pop(context);
-                  },
-                ),
-                if (_isEditMode) ...[
-                  PrimaryActionButton(
-                    icon: Icons.delete_forever,
-                    action: removeItem,
-                  ),
-                ],
-              ],
+            Center(
+              child: PrimaryButton(
+                text: 'Save',
+                action: saveItem,
+              ),
             ),
             const SizedBox(height: 10),
           ],

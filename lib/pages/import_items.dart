@@ -5,6 +5,7 @@ import 'package:expiration_date/models/item_model.dart';
 import 'package:expiration_date/shared/header.dart';
 import 'package:expiration_date/utils/toaster.dart';
 import 'package:expiration_date/widgets/input_field.dart';
+import 'package:expiration_date/widgets/primary_button.dart';
 import 'package:external_path/external_path.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -104,21 +105,9 @@ class _ImportItemsState extends State<ImportItems> {
             ),
             const SizedBox(height: 50),
             Center(
-              child: MaterialButton(
-                color: Colors.orange,
-                padding: const EdgeInsets.symmetric(
-                  vertical: 10,
-                  horizontal: 30,
-                ),
-                onPressed: importFile,
-                child: const Text(
-                  'Import',
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+              child: PrimaryButton(
+                text: 'Import',
+                action: importFile,
               ),
             ),
           ],

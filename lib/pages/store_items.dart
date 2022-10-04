@@ -3,9 +3,10 @@ import 'package:expiration_date/enum/sort_order.dart';
 import 'package:expiration_date/models/item_model.dart';
 import 'package:expiration_date/pages/import_items.dart';
 import 'package:expiration_date/pages/item_details.dart';
-import 'package:expiration_date/shared/header.dart';
-import 'package:expiration_date/widgets/action_button.dart';
+import 'package:expiration_date/utils/toaster.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:intl/intl.dart';
 
 class StoreItems extends StatefulWidget {
@@ -23,7 +24,6 @@ class StoreItems extends StatefulWidget {
 }
 
 class _StoreItemsState extends State<StoreItems> {
-  bool _showSearch = false;
   String _searchText = '';
   SortOrder _order = SortOrder.id;
 
@@ -43,16 +43,6 @@ class _StoreItemsState extends State<StoreItems> {
   void dispose() {
     widget.store.close();
     super.dispose();
-  }
-
-  void toggleSearch() {
-    setState(() {
-      _searchText = '';
-      _searchTerm.clear();
-      _showSearch = !_showSearch;
-      _itemsStream = getItemsStream();
-      _order = SortOrder.id;
-    });
   }
 
   void clearSearch() {
@@ -126,6 +116,11 @@ class _StoreItemsState extends State<StoreItems> {
     return query.watch(triggerImmediately: true).map((query) => query.find());
   }
 
+  void removeItem(int itemId) {
+    widget.store.box<ItemModel>().remove(itemId);
+    showToastMessage('Item deleted successfully!');
+  }
+
   Widget? getTrailingIcon(DateTime expirationDate) {
     final now = DateTime.now();
     if (expirationDate.isBefore(now)) {
@@ -148,7 +143,45 @@ class _StoreItemsState extends State<StoreItems> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const Header(title: 'Items'),
+      appBar: AppBar(
+        elevation: 0,
+        centerTitle: true,
+        backgroundColor: Colors.orange,
+        systemOverlayStyle: const SystemUiOverlayStyle(
+          statusBarColor: Colors.black,
+          statusBarIconBrightness: Brightness.light,
+        ),
+        title: const Text(
+          'Items',
+          style: TextStyle(
+            fontSize: 18,
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        leading: IconButton(
+          icon: const Icon(Icons.keyboard_double_arrow_down),
+          color: Colors.white,
+          onPressed: () {
+            Navigator.pushNamed(
+              context,
+              ImportItems.routeName,
+            );
+          },
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.abc),
+            color: Colors.white,
+            onPressed: sortByName,
+          ),
+          IconButton(
+            icon: const Icon(Icons.calendar_month),
+            color: Colors.white,
+            onPressed: sortByDate,
+          ),
+        ],
+      ),
       body: Padding(
         padding: const EdgeInsets.symmetric(
           horizontal: 5,
@@ -158,72 +191,34 @@ class _StoreItemsState extends State<StoreItems> {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                PrimaryActionButton(
-                  icon: Icons.add,
-                  action: () {
-                    Navigator.pushNamed(
-                      context,
-                      ItemDetails.routeName,
-                    );
-                  },
-                ),
-                PrimaryActionButton(
-                  icon: Icons.keyboard_double_arrow_down,
-                  action: () {
-                    Navigator.pushNamed(
-                      context,
-                      ImportItems.routeName,
-                    );
-                  },
-                ),
-                PrimaryActionButton(
-                  icon: Icons.abc,
-                  action: sortByName,
-                ),
-                PrimaryActionButton(
-                  icon: Icons.calendar_month,
-                  action: sortByDate,
-                ),
-                PrimaryActionButton(
-                  icon: Icons.search,
-                  action: toggleSearch,
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            if (_showSearch) ...[
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 17),
-                child: TextFormField(
-                  controller: _searchTerm,
-                  keyboardType: TextInputType.text,
-                  textInputAction: TextInputAction.done,
-                  cursorColor: Colors.black,
-                  decoration: InputDecoration(
-                    labelText: 'Search',
-                    labelStyle: const TextStyle(
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 17),
+              child: TextFormField(
+                controller: _searchTerm,
+                keyboardType: TextInputType.text,
+                textInputAction: TextInputAction.done,
+                cursorColor: Colors.black,
+                decoration: InputDecoration(
+                  labelText: 'Search',
+                  labelStyle: const TextStyle(
+                    color: Colors.black,
+                  ),
+                  focusedBorder: const UnderlineInputBorder(
+                    borderSide: BorderSide(
                       color: Colors.black,
-                    ),
-                    focusedBorder: const UnderlineInputBorder(
-                      borderSide: BorderSide(
-                        color: Colors.black,
-                        width: 1,
-                      ),
-                    ),
-                    suffixIcon: IconButton(
-                      color: Colors.black,
-                      icon: const Icon(Icons.close),
-                      onPressed: clearSearch,
+                      width: 1,
                     ),
                   ),
-                  onChanged: filterItems,
+                  suffixIcon: IconButton(
+                    color: Colors.black,
+                    icon: const Icon(Icons.close),
+                    onPressed: clearSearch,
+                  ),
                 ),
+                onChanged: filterItems,
               ),
-              const SizedBox(height: 10),
-            ],
+            ),
+            const SizedBox(height: 10),
             StreamBuilder<List<ItemModel>>(
               stream: _itemsStream,
               builder: ((context, snapshot) {
@@ -243,17 +238,40 @@ class _StoreItemsState extends State<StoreItems> {
                   child: ListView.builder(
                     itemCount: itemsList.length,
                     shrinkWrap: true,
-                    itemBuilder: (context, index) => ListTile(
-                      title: Text(itemsList[index].name),
-                      subtitle: Text(DateFormat('dd.MM.yyyy').format(itemsList[index].expirationDate)),
-                      trailing: getTrailingIcon(itemsList[index].expirationDate),
-                      onTap: () {
-                        Navigator.pushNamed(
-                          context,
-                          ItemDetails.routeName,
-                          arguments: itemsList[index].id,
-                        );
-                      },
+                    itemBuilder: (context, index) => Slidable(
+                      startActionPane: ActionPane(
+                        motion: const DrawerMotion(),
+                        children: [
+                          SlidableAction(
+                            backgroundColor: Colors.green,
+                            foregroundColor: Colors.white,
+                            icon: Icons.edit,
+                            onPressed: (context) {
+                              Navigator.pushNamed(
+                                context,
+                                ItemDetails.routeName,
+                                arguments: itemsList[index].id,
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                      endActionPane: ActionPane(
+                        motion: const DrawerMotion(),
+                        children: [
+                          SlidableAction(
+                            backgroundColor: Colors.red,
+                            foregroundColor: Colors.white,
+                            icon: Icons.delete_forever,
+                            onPressed: (context) => removeItem(itemsList[index].id),
+                          ),
+                        ],
+                      ),
+                      child: ListTile(
+                        title: Text(itemsList[index].name),
+                        subtitle: Text(DateFormat('dd.MM.yyyy').format(itemsList[index].expirationDate)),
+                        trailing: getTrailingIcon(itemsList[index].expirationDate),
+                      ),
                     ),
                   ),
                 );
@@ -261,6 +279,16 @@ class _StoreItemsState extends State<StoreItems> {
             ),
           ],
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.orange,
+        onPressed: () {
+          Navigator.pushNamed(
+            context,
+            ItemDetails.routeName,
+          );
+        },
+        child: const Icon(Icons.add),
       ),
     );
   }

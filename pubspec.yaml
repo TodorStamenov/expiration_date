@@ -22,6 +22,7 @@ dependencies:
   flat_buffers: ^2.0.5
   permission_handler: ^10.0.1
   external_path: ^1.0.3
+  flutter_slidable: ^2.0.0
 
 dev_dependencies:
   flutter_test:

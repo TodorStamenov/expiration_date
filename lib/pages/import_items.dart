@@ -29,17 +29,17 @@ class ImportItems extends StatefulWidget {
 class _ImportItemsState extends State<ImportItems> {
   static const _dateFormat = 'dd.MM.yyyy';
 
+  final _formKey = GlobalKey<FormState>();
   final _fileName = TextEditingController();
 
   void importFile() async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
     final status = await Permission.storage.status;
     if (!status.isGranted) {
       await Permission.storage.request();
-    }
-
-    if (_fileName.text == '') {
-      showToastMessage('File name is required!');
-      return;
     }
 
     var fileName = _fileName.text;
@@ -92,25 +92,29 @@ class _ImportItemsState extends State<ImportItems> {
       appBar: const Header(title: 'Import CSV'),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(40),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const SizedBox(height: 30),
-            PrimaryInputField(
-              label: 'File Name',
-              textInputType: TextInputType.text,
-              textInputAction: TextInputAction.done,
-              textEditor: _fileName,
-            ),
-            const SizedBox(height: 50),
-            Center(
-              child: PrimaryButton(
-                text: 'Import',
-                action: importFile,
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const SizedBox(height: 30),
+              PrimaryInputField(
+                label: 'File Name',
+                textInputType: TextInputType.text,
+                textInputAction: TextInputAction.done,
+                textEditor: _fileName,
+                isRequired: true,
               ),
-            ),
-          ],
+              const SizedBox(height: 50),
+              Center(
+                child: PrimaryButton(
+                  text: 'Import',
+                  action: importFile,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

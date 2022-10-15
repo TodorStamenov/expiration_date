@@ -27,6 +27,7 @@ class _ItemDetailsState extends State<ItemDetails> {
   int? _itemId;
   String _headerText = 'Edit Item';
 
+  final _formKey = GlobalKey<FormState>();
   final _name = TextEditingController();
   final _productionDate = TextEditingController();
   final _shelfLife = TextEditingController();
@@ -61,8 +62,7 @@ class _ItemDetailsState extends State<ItemDetails> {
   }
 
   void saveItem() async {
-    if (_name.text == '') {
-      showToastMessage('Product Name is required!');
+    if (!_formKey.currentState!.validate()) {
       return;
     }
 
@@ -105,47 +105,51 @@ class _ItemDetailsState extends State<ItemDetails> {
       appBar: Header(title: _headerText),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(40),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const SizedBox(height: 10),
-            PrimaryInputField(
-              label: 'Name',
-              textEditor: _name,
-              textInputType: TextInputType.text,
-              textInputAction: TextInputAction.next,
-            ),
-            const SizedBox(height: 10),
-            PrimaryInputField(
-              label: 'Production Date',
-              textEditor: _productionDate,
-              textInputType: TextInputType.text,
-              textInputAction: TextInputAction.next,
-            ),
-            const SizedBox(height: 10),
-            PrimaryInputField(
-              label: 'Shelf Life',
-              textEditor: _shelfLife,
-              textInputType: TextInputType.number,
-              textInputAction: TextInputAction.next,
-            ),
-            const SizedBox(height: 10),
-            PrimaryInputField(
-              label: 'Expiration Date',
-              textEditor: _expirationDate,
-              textInputType: TextInputType.text,
-              textInputAction: TextInputAction.done,
-            ),
-            const SizedBox(height: 40),
-            Center(
-              child: PrimaryButton(
-                text: 'Save',
-                action: saveItem,
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const SizedBox(height: 10),
+              PrimaryInputField(
+                label: 'Name',
+                textEditor: _name,
+                textInputType: TextInputType.text,
+                textInputAction: TextInputAction.next,
+                isRequired: true,
               ),
-            ),
-            const SizedBox(height: 10),
-          ],
+              const SizedBox(height: 10),
+              PrimaryInputField(
+                label: 'Production Date',
+                textEditor: _productionDate,
+                textInputType: TextInputType.text,
+                textInputAction: TextInputAction.next,
+              ),
+              const SizedBox(height: 10),
+              PrimaryInputField(
+                label: 'Shelf Life',
+                textEditor: _shelfLife,
+                textInputType: TextInputType.number,
+                textInputAction: TextInputAction.next,
+              ),
+              const SizedBox(height: 10),
+              PrimaryInputField(
+                label: 'Expiration Date',
+                textEditor: _expirationDate,
+                textInputType: TextInputType.text,
+                textInputAction: TextInputAction.done,
+              ),
+              const SizedBox(height: 40),
+              Center(
+                child: PrimaryButton(
+                  text: 'Save',
+                  action: saveItem,
+                ),
+              ),
+              const SizedBox(height: 10),
+            ],
+          ),
         ),
       ),
     );

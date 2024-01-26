@@ -15,9 +15,9 @@ class StoreItems extends StatefulWidget {
   final Store store;
 
   const StoreItems({
-    Key? key,
+    super.key,
     required this.store,
-  }) : super(key: key);
+  });
 
   @override
   State<StoreItems> createState() => _StoreItemsState();

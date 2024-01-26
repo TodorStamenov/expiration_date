@@ -6,28 +6,28 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.19.2 <3.0.0"
+  sdk: ">=2.28.5 <3.0.0"
   
 dependencies:
   flutter:
     sdk: flutter
   fluttertoast: ^8.2.1
-  cupertino_icons: ^1.0.2
-  intl: ^0.18.0
-  objectbox: ^1.7.2
-  objectbox_flutter_libs: ^1.7.2
-  objectbox_generator: ^1.7.2
+  cupertino_icons: ^1.0.6
+  intl: ^0.19.0
+  objectbox: ^2.4.0
+  objectbox_flutter_libs: ^2.4.0
+  objectbox_generator: ^2.4.0
   path_provider: ^2.0.13
   path: ^1.8.2
   flat_buffers: ^2.0.5
-  permission_handler: ^10.0.1
+  permission_handler: ^11.2.0
   external_path: ^1.0.3
-  flutter_slidable: ^2.0.0
+  flutter_slidable: ^3.0.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^2.0.0
+  flutter_lints: ^3.0.1
   build_runner: any
 
 flutter:

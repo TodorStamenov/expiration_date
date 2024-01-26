@@ -13,9 +13,9 @@ class ItemDetails extends StatefulWidget {
   final Store store;
 
   const ItemDetails({
-    Key? key,
+    super.key,
     required this.store,
-  }) : super(key: key);
+  });
 
   @override
   State<ItemDetails> createState() => _ItemDetailsState();
@@ -72,7 +72,7 @@ class _ItemDetailsState extends State<ItemDetails> {
 
     if (_expirationDate.text != '') {
       expirationDate = DateFormat(_dateFormat).parse(_expirationDate.text);
-    } else if (shelfLife != null && productionDate != null && expirationDate == null) {
+    } else if (shelfLife != null && productionDate != null) {
       expirationDate = DateTime(productionDate.year + shelfLife, productionDate.month, productionDate.day);
     } else {
       showToastMessage('You have to provide Expiration Date or Production Date and Shelf Life!');

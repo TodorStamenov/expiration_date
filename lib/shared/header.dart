@@ -13,6 +13,7 @@ class Header extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       elevation: 0,
       centerTitle: true,
+      foregroundColor: Colors.white,
       backgroundColor: Colors.orange,
       systemOverlayStyle: const SystemUiOverlayStyle(
         statusBarColor: Colors.black,

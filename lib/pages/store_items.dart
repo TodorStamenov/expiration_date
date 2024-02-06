@@ -66,7 +66,8 @@ class _StoreItemsState extends State<StoreItems> {
 
       query.order(ItemModel_.name, flags: 0);
 
-      _itemsStream = query.watch(triggerImmediately: true).map((query) => query.find());
+      _itemsStream =
+          query.watch(triggerImmediately: true).map((query) => query.find());
       _order = SortOrder.name;
     });
   }
@@ -82,7 +83,8 @@ class _StoreItemsState extends State<StoreItems> {
 
       query.order(ItemModel_.expirationDate, flags: 0);
 
-      _itemsStream = query.watch(triggerImmediately: true).map((query) => query.find());
+      _itemsStream =
+          query.watch(triggerImmediately: true).map((query) => query.find());
       _order = SortOrder.date;
     });
   }
@@ -105,7 +107,8 @@ class _StoreItemsState extends State<StoreItems> {
         query.order(ItemModel_.expirationDate, flags: 0);
       }
 
-      _itemsStream = query.watch(triggerImmediately: true).map((query) => query.find());
+      _itemsStream =
+          query.watch(triggerImmediately: true).map((query) => query.find());
     });
   }
 
@@ -263,14 +266,17 @@ class _StoreItemsState extends State<StoreItems> {
                             backgroundColor: Colors.red,
                             foregroundColor: Colors.white,
                             icon: Icons.delete_forever,
-                            onPressed: (context) => removeItem(itemsList[index].id),
+                            onPressed: (context) =>
+                                removeItem(itemsList[index].id),
                           ),
                         ],
                       ),
                       child: ListTile(
                         title: Text(itemsList[index].name),
-                        subtitle: Text(DateFormat('dd.MM.yyyy').format(itemsList[index].expirationDate)),
-                        trailing: getTrailingIcon(itemsList[index].expirationDate),
+                        subtitle: Text(DateFormat('dd.MM.yyyy')
+                            .format(itemsList[index].expirationDate)),
+                        trailing:
+                            getTrailingIcon(itemsList[index].expirationDate),
                       ),
                     ),
                   ),
@@ -281,6 +287,7 @@ class _StoreItemsState extends State<StoreItems> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
+        shape: const CircleBorder(),
         backgroundColor: Colors.orange,
         onPressed: () {
           Navigator.pushNamed(
@@ -288,7 +295,11 @@ class _StoreItemsState extends State<StoreItems> {
             ItemDetails.routeName,
           );
         },
-        child: const Icon(Icons.add),
+        child: const Icon(
+          Icons.add,
+          color: Colors.white,
+          size: 35,
+        ),
       ),
     );
   }

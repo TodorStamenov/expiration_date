@@ -43,7 +43,11 @@ class _ItemDetailsState extends State<ItemDetails> {
       });
     } else {
       final itemId = arguments as int;
-      final item = widget.store.box<ItemModel>().query(ItemModel_.id.equals(itemId)).build().findFirst();
+      final item = widget.store
+          .box<ItemModel>()
+          .query(ItemModel_.id.equals(itemId))
+          .build()
+          .findFirst();
 
       if (item == null) {
         return;
@@ -52,9 +56,13 @@ class _ItemDetailsState extends State<ItemDetails> {
       setState(() {
         _itemId = itemId;
         _name.text = item.name;
-        _productionDate.text = item.productionDate == null ? '' : DateFormat(_dateFormat).format(item.productionDate!);
-        _shelfLife.text = item.shelfLife == null ? '' : item.shelfLife.toString();
-        _expirationDate.text = DateFormat(_dateFormat).format(item.expirationDate);
+        _productionDate.text = item.productionDate == null
+            ? ''
+            : DateFormat(_dateFormat).format(item.productionDate!);
+        _shelfLife.text =
+            item.shelfLife == null ? '' : item.shelfLife.toString();
+        _expirationDate.text =
+            DateFormat(_dateFormat).format(item.expirationDate);
       });
     }
 
@@ -67,15 +75,19 @@ class _ItemDetailsState extends State<ItemDetails> {
     }
 
     final shelfLife = int.tryParse(_shelfLife.text);
-    final productionDate = _productionDate.text == '' ? null : DateFormat(_dateFormat).parse(_productionDate.text);
+    final productionDate = _productionDate.text == ''
+        ? null
+        : DateFormat(_dateFormat).parse(_productionDate.text);
     DateTime? expirationDate;
 
     if (_expirationDate.text != '') {
       expirationDate = DateFormat(_dateFormat).parse(_expirationDate.text);
     } else if (shelfLife != null && productionDate != null) {
-      expirationDate = DateTime(productionDate.year + shelfLife, productionDate.month, productionDate.day);
+      expirationDate = DateTime(productionDate.year + shelfLife,
+          productionDate.month, productionDate.day);
     } else {
-      showToastMessage('You have to provide Expiration Date or Production Date and Shelf Life!');
+      showToastMessage(
+          'You have to provide Expiration Date or Production Date and Shelf Life!');
       return;
     }
 

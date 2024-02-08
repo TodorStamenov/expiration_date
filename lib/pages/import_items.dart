@@ -48,11 +48,13 @@ class _ImportItemsState extends State<ImportItems> {
       fileName = '$fileName.csv';
     }
 
-    final path = await ExternalPath.getExternalStoragePublicDirectory(ExternalPath.DIRECTORY_DOWNLOADS);
+    final path = await ExternalPath.getExternalStoragePublicDirectory(
+        ExternalPath.DIRECTORY_DOWNLOADS);
     final file = File(join(path, fileName));
 
     if (!(await file.exists())) {
-      showToastMessage('File with name $fileName doesn\'t exist in Download folder!');
+      showToastMessage(
+          'File with name $fileName doesn\'t exist in Download folder!');
       setState(() {
         _fileName.clear();
       });
